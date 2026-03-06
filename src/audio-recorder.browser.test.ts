@@ -10,9 +10,9 @@ test('records audio', async () => {
   })
 
   await recorder.start()
-  await new Promise(r => setTimeout(r, 500))
-  recorder.stop()
   await new Promise(r => setTimeout(r, 100))
+  recorder.stop()
+  await new Promise(r => setTimeout(r))
 
   expect(capturedBlob).toBeInstanceOf(Blob)
   expect(capturedBlob!.size).toBeGreaterThan(0)
