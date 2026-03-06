@@ -30,7 +30,7 @@ export async function transcribeAudio(
   const [response] = await speechClient.recognize({
     audio: { content: audioBytes },
     config: {
-      encoding: contentType.includes('webm') ? 'WEBM_OPUS' : 'MP3',
+      // encoding: contentType.includes('webm') ? 'WEBM_OPUS' : 'MP3',
       sampleRateHertz: 48000,
       languageCode: 'en-US'
     }
