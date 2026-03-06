@@ -6,20 +6,7 @@ settings:
 
 importers:
 
-  .:
-    devDependencies:
-      '@vitest/browser-playwright':
-        specifier: ^4.0.18
-        version: 4.0.18(playwright@1.58.2)(vite@7.3.1(@types/node@20.19.37))(vitest@4.0.18)
-      playwright:
-        specifier: ^1.58.2
-        version: 1.58.2
-      typescript:
-        specifier: ^5.3.0
-        version: 5.9.3
-      vitest:
-        specifier: ^4.0.18
-        version: 4.0.18(@opentelemetry/api@1.9.0)(@types/node@20.19.37)(@vitest/browser-playwright@4.0.18)
+  .: {}
 
   functions/transcribe:
     dependencies:
@@ -42,6 +29,21 @@ importers:
       typescript:
         specifier: ^5.0.0
         version: 5.9.3
+
+  website:
+    devDependencies:
+      '@vitest/browser-playwright':
+        specifier: ^4.0.18
+        version: 4.0.18(playwright@1.58.2)(vite@7.3.1(@types/node@20.19.37))(vitest@4.0.18)
+      playwright:
+        specifier: ^1.58.2
+        version: 1.58.2
+      typescript:
+        specifier: ^5.3.0
+        version: 5.9.3
+      vitest:
+        specifier: ^4.0.18
+        version: 4.0.18(@opentelemetry/api@1.9.0)(@types/node@20.19.37)(@vitest/browser-playwright@4.0.18)
 
 packages:
 
