@@ -1,11 +1,14 @@
 import { AudioRecorder } from './audio-recorder'
+import { Store } from './store'
 import { transcribeAudio } from './transcribe'
 
 const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSf0G2ghmszoy7d54N2FasOMXqAJp2xKwxELO0EbRIZLXjqQCg/viewform?usp=pp_url&entry.366340186='
 
-let isRecording = false
-let audioBlob: Blob | null = null
-let currentTranscript: string | null = null
+const store = Store({
+  isRecording: false,
+  audioBlob: undefined as Blob | undefined,
+  transcript: undefined as string | undefined
+})
 
 const recordBtn = document.getElementById('recordBtn') as HTMLButtonElement
 const downloadBtn = document.getElementById('downloadBtn') as HTMLAnchorElement
@@ -18,10 +21,10 @@ const statusText = document.getElementById('statusText') as HTMLParagraphElement
 const recorder = new AudioRecorder({
   error: (err) => {
     statusText.textContent = `Error: ${err.message}`
-    stopRecordingState()
+    stopRecording()
   },
   audio: async (blob) => {
-    audioBlob = blob
+    store.audioBlob = blob
     
     downloadBtn.href = URL.createObjectURL(blob)
     downloadBtn.download = 'recording.webm'
@@ -33,13 +36,13 @@ const recorder = new AudioRecorder({
     submitBtn.style.display = 'none'
     
     try {
-      currentTranscript = await transcribeAudio(blob)
+      store.transcript = await transcribeAudio(blob)
       
       loadingIndicator.style.display = 'none'
       transcriptSection.style.display = 'block'
-      transcriptText.textContent = currentTranscript
+      transcriptText.textContent = store.transcript
       
-      submitBtn.href = formUrl + encodeURIComponent(currentTranscript)
+      submitBtn.href = formUrl + encodeURIComponent(store.transcript)
       submitBtn.style.display = 'inline-block'
       
       statusText.textContent = 'Done!'
@@ -48,30 +51,30 @@ const recorder = new AudioRecorder({
       statusText.textContent = `Transcription failed: ${err instanceof Error ? err.message : 'Unknown error'}`
     }
     
-    stopRecordingState()
+    stopRecording()
   }
 })
 
 recordBtn.addEventListener('click', () => {
-  if (isRecording)
+  if (store.isRecording)
     recorder.stop()
   else
     startRecording()
 })
 
 function startRecording() {
-  isRecording = true
+  store.isRecording = true
   recordBtn.textContent = 'Stop Recording'
   statusText.textContent = 'Recording...'
   downloadBtn.style.display = 'none'
   transcriptSection.style.display = 'none'
   submitBtn.style.display = 'none'
-  audioBlob = null
-  currentTranscript = null
+  store.audioBlob = undefined
+  store.transcript = undefined
   recorder.start()
 }
 
-function stopRecordingState() {
-  isRecording = false
+function stopRecording() {
+  store.isRecording = false
   recordBtn.textContent = 'Start Recording'
 }
