@@ -8,7 +8,7 @@ async function blobToBase64(blob: Blob): Promise<string> {
   return base64
 }
 
-export async function transcribeAudio(audioBlob: Blob): Promise<string> {
+export async function transcribeAudio(audioBlob: Blob) {
   const base64Audio = await blobToBase64(audioBlob)
 
   const response = await fetch(TRANSCRIBE_URL, {
@@ -20,10 +20,6 @@ export async function transcribeAudio(audioBlob: Blob): Promise<string> {
     })
   })
 
-  const result = await response.json()
-
-  if (result.error)
-    throw new Error(result.error)
-
-  return result.transcript
+  return response.json()
+    .then(x => x.transcript as string)
 }
