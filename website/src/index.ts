@@ -22,21 +22,22 @@ const recorder = new AudioRecorder({
   },
   audio: async (blob) => {
     audioBlob = blob
+    
+    downloadBtn.href = URL.createObjectURL(blob)
+    downloadBtn.download = 'recording.webm'
+    downloadBtn.style.display = 'inline-block'
+    
     statusText.textContent = 'Transcribing...'
+    loadingIndicator.style.display = 'block'
+    transcriptSection.style.display = 'none'
+    submitBtn.style.display = 'none'
     
     try {
-      loadingIndicator.style.display = 'block'
-      transcriptSection.style.display = 'none'
-      
       currentTranscript = await transcribeAudio(blob)
       
       loadingIndicator.style.display = 'none'
       transcriptSection.style.display = 'block'
       transcriptText.textContent = currentTranscript
-      
-      downloadBtn.style.display = 'inline-block'
-      downloadBtn.href = URL.createObjectURL(blob)
-      downloadBtn.download = 'recording.webm'
       
       submitBtn.href = formUrl + encodeURIComponent(currentTranscript)
       submitBtn.style.display = 'inline-block'
