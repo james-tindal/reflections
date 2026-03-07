@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Spoken Reflection</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <img src="curriculum-image-display.jpg" alt="Reflection" class="hero-image">
+    
+    <p class="description">
+      Record a short spoken reflection under 1 minute
+    </p>
+    
+    <button id="recordBtn" class="btn btn-primary">Start Recording</button>
+    
+    <p id="statusText" class="status"></p>
+    
+    <div id="loadingIndicator" class="loading" style="display: none;">
+      <div class="spinner"></div>
+      <span>Processing...</span>
+    </div>
+    
+    <div id="transcriptSection" class="transcript-section" style="display: none;">
+      <h2>Transcript</h2>
+      <p id="transcriptText" class="transcript"></p>
+    </div>
+    
+    <div class="actions">
+      <a id="downloadBtn" class="btn btn-secondary" style="display: none;" download>Download Audio</a>
+      <a id="submitBtn" class="btn btn-primary" style="display: none;" target="_blank">Submit Transcript</a>
+    </div>
+  </main>
+  
+  <script type="module" src="src/index.ts"></script>
+</body>
+</html>
