@@ -1,15 +1,19 @@
-import { AudioRecorder } from './audio-recorder'
+import { Logic } from './logic'
 import { Store, subscribe } from './store'
-import { transcribeAudio } from './transcribe'
 
 const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSf0G2ghmszoy7d54N2FasOMXqAJp2xKwxELO0EbRIZLXjqQCg/viewform?usp=pp_url&entry.366340186='
 
-const store = Store({
+export type UiState = {
+  isRecording: boolean
+  audioBlob?: Blob
+  transcript?: string
+  status: string
+  isLoading: boolean
+}
+const store = Store<UiState>({
   isRecording: false,
-  audioBlob:  undefined as undefined | Blob,
-  transcript: undefined as undefined | string,
-  status: '',
   isLoading: false,
+  status: '',
 })
 
 const recordBtn = document.getElementById('recordBtn') as HTMLButtonElement
@@ -54,36 +58,7 @@ subscribe(store, 'transcript', value => {
   }
 })
 
-const recorder = new AudioRecorder({
-  error: (err) => {
-    store.status = `Error: ${err.message}`
-    store.isRecording = false
-  },
-  audio: async (blob) => {
-    store.audioBlob = blob
-    store.status = 'Transcribing...'
-    store.isLoading = true
-    
-    try {
-      store.transcript = await transcribeAudio(blob)
-      store.status = 'Done!'
-    } catch (err) {
-      store.status = `Transcription failed: ${err instanceof Error ? err.message : 'Unknown error'}`
-    }
-    
-    store.isLoading = false
-    store.isRecording = false
-  }
-})
 
-recordBtn.addEventListener('click', () => {
-  if (store.isRecording) {
-    recorder.stop()
-  } else {
-    store.isRecording = true
-    store.status = 'Recording...'
-    store.audioBlob = undefined
-    store.transcript = undefined
-    recorder.start()
-  }
-})
+const logic = Logic(store)
+
+recordBtn.addEventListener('click', logic.toggleRecording)
