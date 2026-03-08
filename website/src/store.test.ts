@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, assertType } from 'vitest'
 import { Store, subscribe } from './store'
 
 describe('Store', () => {
@@ -59,5 +59,22 @@ describe('Store', () => {
     store.count = 5
     expect(fn1).toHaveBeenCalledExactlyOnceWith(5)
     expect(fn2).not.toHaveBeenCalled()
+  })
+
+  it('callback receives correct value type', () => {
+    type Store = { count: number; name: string; active: boolean }
+    const store = {} as Store
+
+    subscribe(store, 'count', (value) => {
+      assertType<number>(value)
+    })
+
+    subscribe(store, 'name', (value) => {
+      assertType<string>(value)
+    })
+
+    subscribe(store, 'active', (value) => {
+      assertType<boolean>(value)
+    })
   })
 })

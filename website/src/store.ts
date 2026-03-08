@@ -22,10 +22,10 @@ export function Store<T extends Record<string, unknown>>(target: T): T {
   return proxy
 }
 
-export function subscribe<T>(
+export function subscribe<T, K extends keyof T>(
   store: T,
-  key: keyof T,
-  callback: (value: T[keyof T]) => void
+  key: K,
+  callback: (value: T[K]) => void
 ): () => void {
   const subs = (store as any)[subscribers] as Map<string, Set<(value: unknown) => void>> | undefined
   

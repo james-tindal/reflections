@@ -3,6 +3,10 @@ import { playwright } from '@vitest/browser-playwright'
 
 export default defineConfig({
   test: {
+    typecheck: {
+      enabled: true,
+      include: ['src/**/*.test.ts'],
+    },
     projects: [
       {
         test: {
@@ -24,6 +28,10 @@ export default defineConfig({
           name: 'node',
           include: ['src/**/*.test.ts'],
           exclude: ['src/**/*.browser.test.ts'],
+          typecheck: {
+            enabled: true,
+            include: ['src/**/*.test.ts'],
+          },
         },
       },
     ],
