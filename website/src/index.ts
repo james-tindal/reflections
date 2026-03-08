@@ -1,13 +1,15 @@
 import { AudioRecorder } from './audio-recorder'
-import { Store } from './store'
+import { Store, subscribe } from './store'
 import { transcribeAudio } from './transcribe'
 
 const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSf0G2ghmszoy7d54N2FasOMXqAJp2xKwxELO0EbRIZLXjqQCg/viewform?usp=pp_url&entry.366340186='
 
 const store = Store({
   isRecording: false,
-  audioBlob: undefined as Blob | undefined,
-  transcript: undefined as string | undefined
+  audioBlob:  undefined as undefined | Blob,
+  transcript: undefined as undefined | string,
+  status: '',
+  isLoading: false,
 })
 
 const recordBtn = document.getElementById('recordBtn') as HTMLButtonElement
@@ -18,63 +20,70 @@ const loadingIndicator = document.getElementById('loadingIndicator') as HTMLDivE
 const submitBtn = document.getElementById('submitBtn') as HTMLAnchorElement
 const statusText = document.getElementById('statusText') as HTMLParagraphElement
 
+subscribe(store, 'isRecording', value => {
+  recordBtn.textContent = value ? 'Stop Recording' : 'Start Recording'
+})
+
+subscribe(store, 'status', value => {
+  statusText.textContent = value
+})
+
+subscribe(store, 'isLoading', value => {
+  loadingIndicator.style.display = value ? 'block' : 'none'
+})
+
+subscribe(store, 'audioBlob', value => {
+  if (value) {
+    downloadBtn.href = URL.createObjectURL(value)
+    downloadBtn.download = 'recording.webm'
+    downloadBtn.style.display = 'inline-block'
+  } else {
+    downloadBtn.style.display = 'none'
+  }
+})
+
+subscribe(store, 'transcript', value => {
+  if (value) {
+    transcriptText.textContent = value
+    transcriptSection.style.display = 'block'
+    submitBtn.href = formUrl + encodeURIComponent(value)
+    submitBtn.style.display = 'inline-block'
+  } else {
+    transcriptSection.style.display = 'none'
+    submitBtn.style.display = 'none'
+  }
+})
+
 const recorder = new AudioRecorder({
   error: (err) => {
-    statusText.textContent = `Error: ${err.message}`
-    stopRecording()
+    store.status = `Error: ${err.message}`
+    store.isRecording = false
   },
   audio: async (blob) => {
     store.audioBlob = blob
-    
-    downloadBtn.href = URL.createObjectURL(blob)
-    downloadBtn.download = 'recording.webm'
-    downloadBtn.style.display = 'inline-block'
-    
-    statusText.textContent = 'Transcribing...'
-    loadingIndicator.style.display = 'block'
-    transcriptSection.style.display = 'none'
-    submitBtn.style.display = 'none'
+    store.status = 'Transcribing...'
+    store.isLoading = true
     
     try {
       store.transcript = await transcribeAudio(blob)
-      
-      loadingIndicator.style.display = 'none'
-      transcriptSection.style.display = 'block'
-      transcriptText.textContent = store.transcript
-      
-      submitBtn.href = formUrl + encodeURIComponent(store.transcript)
-      submitBtn.style.display = 'inline-block'
-      
-      statusText.textContent = 'Done!'
+      store.status = 'Done!'
     } catch (err) {
-      loadingIndicator.style.display = 'none'
-      statusText.textContent = `Transcription failed: ${err instanceof Error ? err.message : 'Unknown error'}`
+      store.status = `Transcription failed: ${err instanceof Error ? err.message : 'Unknown error'}`
     }
     
-    stopRecording()
+    store.isLoading = false
+    store.isRecording = false
   }
 })
 
 recordBtn.addEventListener('click', () => {
-  if (store.isRecording)
+  if (store.isRecording) {
     recorder.stop()
-  else
-    startRecording()
+  } else {
+    store.isRecording = true
+    store.status = 'Recording...'
+    store.audioBlob = undefined
+    store.transcript = undefined
+    recorder.start()
+  }
 })
-
-function startRecording() {
-  store.isRecording = true
-  recordBtn.textContent = 'Stop Recording'
-  statusText.textContent = 'Recording...'
-  downloadBtn.style.display = 'none'
-  transcriptSection.style.display = 'none'
-  submitBtn.style.display = 'none'
-  store.audioBlob = undefined
-  store.transcript = undefined
-  recorder.start()
-}
-
-function stopRecording() {
-  store.isRecording = false
-  recordBtn.textContent = 'Start Recording'
-}
