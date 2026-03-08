@@ -3,38 +3,10 @@ import { http } from '@google-cloud/functions-framework'
 
 const speechClient = new SpeechClient()
 
-const MAX_DURATION_MS = 60_000
-
-interface TranscriptionRequest {
-  audio: string
-  contentType: string
-}
-
-interface TranscriptionResponse {
-  transcript?: string
-  error?: string
-}
-
-export async function transcribeAudio(
-  audioData: Buffer,
-  contentType: string
-): Promise<TranscriptionResponse> {
-  const audioBytes = audioData.toString('base64')
-
-  const durationMs = estimateAudioDuration(audioData, contentType)
-  if (durationMs > MAX_DURATION_MS) {
-    return {
-      error: `Audio exceeds maximum duration of ${MAX_DURATION_MS / 1000} seconds`
-    }
-  }
-
+export async function transcribeAudio(audioData: Buffer) {
   const [response] = await speechClient.recognize({
-    audio: { content: audioBytes },
-    config: {
-      // encoding: contentType.includes('webm') ? 'WEBM_OPUS' : 'MP3',
-      sampleRateHertz: 48000,
-      languageCode: 'en-US'
-    }
+    audio: { content: audioData },
+    config: { languageCode: 'en-US' },
   })
 
   const transcript = response.results
@@ -44,16 +16,6 @@ export async function transcribeAudio(
   return { transcript }
 }
 
-function estimateAudioDuration(buffer: Buffer, contentType: string): number {
-  const bytesPerSecond = contentType.includes('webm') ? 6000 : 16000
-  return (buffer.length / bytesPerSecond) * 1000
-}
-
-interface HttpRequest {
-  method?: string
-  body: TranscriptionRequest
-}
-
 http('handler', async function (req, res) {
   if (req.method !== 'POST') {
     res.json({ error: 'Method not allowed' })
@@ -61,15 +23,14 @@ http('handler', async function (req, res) {
   }
 
   try {
-    const { audio, contentType } = req.body
+    const audioBuffer = req.body
 
-    if (!audio) {
-      res.json({ error: 'Missing audio field' })
+    if (!audioBuffer || audioBuffer.length === 0) {
+      res.json({ error: 'Missing audio data' })
       return
     }
 
-    const audioBuffer = Buffer.from(audio, 'base64')
-    const result = await transcribeAudio(audioBuffer, contentType)
+    const result = await transcribeAudio(audioBuffer)
 
     res.json(result)
   } catch (error) {
