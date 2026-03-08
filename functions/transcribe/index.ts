@@ -1,5 +1,6 @@
 import { SpeechClient } from '@google-cloud/speech'
-import { http } from '@google-cloud/functions-framework'
+import { http, Response } from '@google-cloud/functions-framework'
+import { Transcribe } from '@reflections/contract'
 
 const speechClient = new SpeechClient()
 
@@ -16,7 +17,7 @@ export async function transcribeAudio(audioData: Buffer) {
   return { transcript }
 }
 
-http('handler', async function (req, res) {
+http('handler', async function (req, res: Response<Transcribe.Output>) {
   if (req.method !== 'POST') {
     res.json({ error: 'Method not allowed' })
     return

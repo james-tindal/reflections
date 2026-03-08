@@ -1,3 +1,4 @@
+import { Transcribe } from '@reflections/contract'
 import TRANSCRIBE_URL from './pulumi-output'
 
 export async function transcribeAudio(audioBlob: Blob) {
@@ -7,6 +8,9 @@ export async function transcribeAudio(audioBlob: Blob) {
     body: audioBlob
   })
 
-  return response.json()
-    .then(x => x.transcript as string)
+  const output = await response.json() as Transcribe.Output
+  if ('error' in output)
+    throw Error(output.error)
+  else
+    return output.transcript ?? ''
 }

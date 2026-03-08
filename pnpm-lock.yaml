@@ -16,6 +16,9 @@ importers:
       '@google-cloud/speech':
         specifier: ^6.0.0
         version: 6.7.1
+      '@reflections/contract':
+        specifier: link:../../contract
+        version: link:../../contract
 
   functions/upload-audio:
     dependencies:
@@ -25,6 +28,9 @@ importers:
       '@google-cloud/storage':
         specifier: ^7.0.0
         version: 7.19.0
+      '@reflections/contract':
+        specifier: link:../../contract
+        version: link:../../contract
     devDependencies:
       '@types/node':
         specifier: ^20.0.0
@@ -50,6 +56,10 @@ importers:
         version: 20.19.37
 
   website:
+    dependencies:
+      '@reflections/contract':
+        specifier: link:../contract
+        version: link:../contract
     devDependencies:
       '@vitest/browser-playwright':
         specifier: ^4.0.18
