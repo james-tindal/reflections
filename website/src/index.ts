@@ -1,20 +1,7 @@
-import { Logic } from './logic'
-import { Store, subscribe } from './store'
+import { store, toggleRecording } from './logic'
+import { subscribe } from './store'
 
 const formUrl = 'https://docs.google.com/forms/d/e/1FAIpQLSf0G2ghmszoy7d54N2FasOMXqAJp2xKwxELO0EbRIZLXjqQCg/viewform?usp=pp_url&entry.366340186='
-
-export type UiState = {
-  isRecording: boolean
-  audioBlob?: Blob
-  transcript?: string
-  status: string
-  isLoading: boolean
-}
-const store = Store<UiState>({
-  isRecording: false,
-  isLoading: false,
-  status: '',
-})
 
 const recordBtn = document.getElementById('recordBtn') as HTMLButtonElement
 const downloadBtn = document.getElementById('downloadBtn') as HTMLAnchorElement
@@ -59,6 +46,4 @@ subscribe(store, 'transcript', value => {
 })
 
 
-const logic = Logic(store)
-
-recordBtn.addEventListener('click', logic.toggleRecording)
+recordBtn.addEventListener('click', toggleRecording)
