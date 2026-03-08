@@ -1,4 +1,5 @@
 import { SpeechClient } from '@google-cloud/speech'
+import { http } from '@google-cloud/functions-framework'
 
 const speechClient = new SpeechClient()
 
@@ -53,10 +54,7 @@ interface HttpRequest {
   body: TranscriptionRequest
 }
 
-export async function handler(
-  req: HttpRequest,
-  res: { json: (data: TranscriptionResponse) => void }
-): Promise<void> {
+http('handler', async function (req, res) {
   if (req.method !== 'POST') {
     res.json({ error: 'Method not allowed' })
     return
@@ -79,4 +77,4 @@ export async function handler(
       error: error instanceof Error ? error.message : 'Transcription failed'
     })
   }
-}
+})
