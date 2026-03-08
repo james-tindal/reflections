@@ -1,4 +1,4 @@
-import TRANSCRIBE_URL from './stack-output'
+import TRANSCRIBE_URL from './pulumi-output'
 
 async function blobToBase64(blob: Blob): Promise<string> {
   const buffer = await blob.arrayBuffer()

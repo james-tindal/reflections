@@ -1,6 +1,7 @@
 name: audio-transcription
 runtime: nodejs
 description: Google Cloud Function for audio transcription
+main: ts
 scripts:
   postup:
     - pulumi stack output functionUrl | sed "s/^/export default '/" | sed "s/$/'/" > ../website/src/stack-output.ts
