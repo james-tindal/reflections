@@ -4,7 +4,6 @@
   "main": "index.js",
   "dependencies": {
     "@google-cloud/functions-framework": "^5.0.2",
-    "@google-cloud/speech": "^6.0.0",
-    "@reflections/contract": "link:../../contract"
+    "@google-cloud/speech": "^6.0.0"
   }
 }

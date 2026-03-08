@@ -1,7 +1,7 @@
 import { AudioRecorder } from './audio-recorder'
 import { Store } from './store'
 import { transcribeAudio } from './transcribe'
-import { UploadAudio } from '@reflections/contract'
+import { UploadAudio } from '@reflections/api'
 
 const UPLOAD_URL = ''
 

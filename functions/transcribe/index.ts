@@ -1,6 +1,6 @@
 import { SpeechClient } from '@google-cloud/speech'
 import { http, Response } from '@google-cloud/functions-framework'
-import { Transcribe } from '@reflections/contract'
+import { Transcribe } from '@reflections/api'
 
 const speechClient = new SpeechClient()
 

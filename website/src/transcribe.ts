@@ -1,4 +1,4 @@
-import { Transcribe } from '@reflections/contract'
+import { Transcribe } from '@reflections/api'
 import TRANSCRIBE_URL from './pulumi-output'
 
 export async function transcribeAudio(audioBlob: Blob) {

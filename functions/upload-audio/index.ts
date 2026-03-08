@@ -1,6 +1,6 @@
 import { Storage } from '@google-cloud/storage'
 import { http, Response } from '@google-cloud/functions-framework'
-import { UploadAudio } from '@reflections/contract'
+import { UploadAudio } from '@reflections/api'
 
 const storage = new Storage()
 const bucketName = 'reflection-audio'
