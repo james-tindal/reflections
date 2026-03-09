@@ -1,4 +1,8 @@
-name: audio-transcription
-runtime: nodejs
-description: Google Cloud Function for audio transcription
+name: reflections
+description: reflections
 main: ts
+runtime:
+  name: nodejs
+  options:
+    typescript: false
+    nodeargs: "--import tsx/esm"
