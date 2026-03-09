@@ -1,3 +1,4 @@
 node_modules/
 dist/
 pulumi-output.ts
+Pulumi.*.yaml
