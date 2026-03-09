@@ -10,12 +10,14 @@ async function writeExportsSimple(relativePath: string, obj: Record<string, unkn
   if (!fs.existsSync(dir))
     fs.mkdirSync(dir, { recursive: true })
 
-  const content = `export default ${JSON.stringify(obj, null, 2)}\n`
+  const lines = Object.entries(obj).map(([key, value]) =>
+    `export const ${key} = ${JSON.stringify(value)}`)
+  const content = lines.join('\n') + '\n'
   fs.writeFileSync(filePath, content)
 }
 
 /**
- * Write a `pulumi-exports.ts` file at the given path that exports the given object with Pulumi Outputs resolved.
+ * Write a `pulumi-output.ts` file at the given path that exports the given object with Pulumi Outputs resolved.
  * Takes an object whose values can be plain values or Pulumi Outputs.
  * Path relative to the monorepo root (where pnpm-workspace.yaml lives).
  */

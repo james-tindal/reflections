@@ -7,8 +7,8 @@ import { execSync } from 'node:child_process'
 import paths from '@infra/utilities/paths'
 import { region } from '@infra/config'
 import { writeExports } from '@infra/utilities/write-exports'
-import { functionUrl } from '@infra/functions/transcribe'
-import { uploadAudioFunctionUrl, audioBucketUrl } from '@infra/functions/upload-audio'
+import { transcribeUrl } from '@infra/functions/transcribe'
+import { uploadAudioUrl, audioBucketUrl } from '@infra/functions/upload-audio'
 import { OutputResource } from '@infra/utilities/output-resource'
 
 
@@ -27,15 +27,15 @@ new gcp.storage.BucketAccessControl('website-bucket-owner', {
   entity: 'allUsers'
 })
 
-const exportsWritten = writeExports('website/src', {
-  functionUrl,
-  uploadAudioFunctionUrl,
+const exportsWritten = writeExports('api', {
+  transcribeUrl,
+  uploadAudioUrl,
   audioBucketUrl
 })
 
 const websiteBuilt = new OutputResource(
   exportsWritten.apply(() =>
-    execSync(`cd ${paths.website} && npm run build`)))
+    execSync(`pnpm i -w ./api && cd ${paths.website} && npm run build`)))
 
 const distPath = path.join(paths.website, 'dist')
 

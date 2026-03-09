@@ -1,8 +1,8 @@
 import { UploadAudio } from '.'
-import UPLOAD_URL from './pulumi-output'
+import { uploadAudioUrl } from './pulumi-output'
 
 export async function uploadAudio(audioBlob: Blob) {
-  const response = await fetch(UPLOAD_URL, {
+  const response = await fetch(uploadAudioUrl, {
     method: 'POST',
     headers: { 'Content-Type': audioBlob.type },
     body: audioBlob

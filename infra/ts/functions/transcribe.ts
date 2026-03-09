@@ -38,4 +38,4 @@ new gcp.cloudfunctions.FunctionIamMember('transcribe-fn-iam', {
   member: 'allUsers'
 })
 
-export const functionUrl = fn.httpsTriggerUrl
+export const transcribeUrl = fn.httpsTriggerUrl

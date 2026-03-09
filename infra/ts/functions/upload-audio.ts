@@ -51,6 +51,6 @@ new gcp.cloudfunctions.FunctionIamMember('upload-audio-fn-iam', {
   member: 'allUsers'
 })
 
-export const uploadAudioFunctionUrl = uploadAudioFn.httpsTriggerUrl
+export const uploadAudioUrl = uploadAudioFn.httpsTriggerUrl
 export const audioBucketName = audioBucket.name
 export const audioBucketUrl = `https://storage.googleapis.com/${audioBucket.name}`
