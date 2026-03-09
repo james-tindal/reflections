@@ -10,9 +10,8 @@ import { uploadAudioUrl, audioBucketUrl } from '@infra/functions/upload-audio'
 import path from 'node:path'
 
 
-export const websiteBucket = new gcp.storage.Bucket('website', {
+export const websiteBucket = new gcp.storage.Bucket('website-bucket', {
   location: region,
-  uniformBucketLevelAccess: true,
   website: {
     mainPageSuffix: 'index.html',
     notFoundPage: '404.html'

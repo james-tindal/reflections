@@ -1,7 +1,7 @@
 {
   "name": "transcribe-function",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "dist/index.js",
   "dependencies": {
     "@google-cloud/functions-framework": "^5.0.2",
     "@google-cloud/speech": "^6.0.0"

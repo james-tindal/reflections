@@ -3,12 +3,13 @@ import * as command from '@pulumi/command'
 import { functionsBucket } from '@infra/buckets/functions'
 import { region } from '@infra/config'
 import paths from '@infra/utilities/paths'
+import { gcpBuildService, gcpFunctionsService, gcpRunService } from './gcp-functions-service'
 
 
 const compile = new command.local.Command('compile-transcribe-function', {
-  create: `npx tsc`,
+  create: `tsc --noEmit false`,
   dir: paths.functions.transcribe,
-  archivePaths: ['dist/**'],
+  archivePaths: ['dist/**', 'package.json'],
 })
 
 const functionArchive = new gcp.storage.BucketObject('transcribe-function', {
@@ -17,21 +18,28 @@ const functionArchive = new gcp.storage.BucketObject('transcribe-function', {
   source: compile.archive
 })
 
-export const fn = new gcp.cloudfunctions.Function('transcribe-fn', {
-  runtime: 'nodejs24',
-  region: region,
-  sourceArchiveBucket: functionsBucket.name,
-  sourceArchiveObject: functionArchive.name,
-  entryPoint: 'handler',
-  triggerHttp: true,
-  availableMemoryMb: 512,
-})
+export const fn = new gcp.cloudfunctionsv2.Function('transcribe-fn', {
+  location: region,
+  buildConfig: {
+    runtime: 'nodejs24',
+    entryPoint: 'handler',
+    source: {
+      storageSource: {
+        bucket: functionsBucket.name,
+        object: functionArchive.name,
+      },
+    },
+  },
+  serviceConfig: {
+    availableMemory: '512M',
+  },
+}, { dependsOn: [gcpFunctionsService, gcpBuildService, gcpRunService] })
 
-new gcp.cloudfunctions.FunctionIamMember('transcribe-fn-iam', {
-  region: region,
+new gcp.cloudfunctionsv2.FunctionIamMember('transcribe-fn-iam', {
+  location: region,
   cloudFunction: fn.name,
   role: 'roles/cloudfunctions.invoker',
   member: 'allUsers'
 })
 
-export const transcribeUrl = fn.httpsTriggerUrl
+export const transcribeUrl = fn.serviceConfig.apply((sc) => sc?.uri)

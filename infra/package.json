@@ -4,12 +4,13 @@
   "type": "module",
   "dependencies": {
     "@pulumi/command": "^1.2.1",
-    "@pulumi/gcp": "^7.0.0",
+    "@pulumi/gcp": "^9.14.0",
     "@pulumi/local": "^0.1.6",
     "@pulumi/pulumi": "^3.0.0",
     "@pulumi/synced-folder": "^0.12.4",
     "@types/node": "^25.3.5",
     "find-up-simple": "^1.0.0",
-    "tsx": "^4.21.0"
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
   }
 }

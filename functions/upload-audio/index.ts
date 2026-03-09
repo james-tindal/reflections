@@ -1,6 +1,7 @@
 import { Storage } from '@google-cloud/storage'
-import { http, Response } from '@google-cloud/functions-framework'
-import { UploadAudio } from '@reflections/api'
+import { http } from '@google-cloud/functions-framework'
+import type { UploadAudio } from '@reflections/api'
+import type { Response } from '@google-cloud/functions-framework'
 
 const storage = new Storage()
 const bucketName = 'reflection-audio'
@@ -13,7 +14,7 @@ function generateFilename(contentType: string): string {
   return `${timestamp}-${random}.${ext}`
 }
 
-http('handler', async (req, res: Response<UploadAudio.Output>) => {
+export async function handler(req: any, res: Response<UploadAudio.Output>) {
   if (req.method !== 'POST') {
     res.status(405).json({ error: 'Method not allowed' })
     return
@@ -32,4 +33,6 @@ http('handler', async (req, res: Response<UploadAudio.Output>) => {
 
   const url = `https://storage.googleapis.com/${bucketName}/${filename}`
   res.status(200).json({ url })
-})
+}
+
+http('handler', handler)
