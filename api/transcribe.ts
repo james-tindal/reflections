@@ -1,7 +1,7 @@
-import { Transcribe } from '@reflections/api'
+import { Transcribe } from '.'
 import TRANSCRIBE_URL from './pulumi-output'
 
-export async function transcribeAudio(audioBlob: Blob) {
+export async function transcribe(audioBlob: Blob) {
   const response = await fetch(TRANSCRIBE_URL, {
     method: 'POST',
     headers: { 'Content-Type': audioBlob.type },

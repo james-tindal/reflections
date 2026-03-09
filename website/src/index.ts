@@ -42,7 +42,7 @@ subscribe(store, 'audioBlob', value => {
   }
 })
 
-subscribe(store, 'sharedAudioUrl', value => {
+subscribe(store, 'sharedUrl', value => {
   if (value) {
     sharedUrlText.textContent = value
     sharedUrlSection.style.display = 'flex'
@@ -68,7 +68,7 @@ subscribe(store, 'transcript', value => {
 recordBtn.addEventListener('click', toggleRecording)
 shareBtn.addEventListener('click', shareRecording)
 copyBtn.addEventListener('click', () => {
-  if (!store.sharedAudioUrl) return
-  navigator.clipboard.writeText(store.sharedAudioUrl)
+  if (!store.sharedUrl) return
+  navigator.clipboard.writeText(store.sharedUrl)
   copyBtn.innerHTML = svgTick
 })
