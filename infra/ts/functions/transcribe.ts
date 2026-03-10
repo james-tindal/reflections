@@ -4,19 +4,36 @@ import { functionsBucket } from '@infra/buckets/functions'
 import { region } from '@infra/config'
 import paths from '@infra/utilities/paths'
 import { gcpBuildService, gcpFunctionsService, gcpRunService } from './gcp-functions-service'
+import { FolderHash } from '@infra/utilities/folder-hash'
 
 
-const compile = new command.local.Command('compile-transcribe-function', {
-  create: `tsc --noEmit false`,
+const folderHash = new FolderHash('transcribe-fn-folder-hash', {
+  path: paths.functions.transcribe,
+  folders: { exclude: ['node_modules'] }
+})
+
+const build = new command.local.Command('build-transcribe-fn', {
+  create: `pnpm install && pnpm rolldown -c`,
   dir: paths.functions.transcribe,
-  archivePaths: ['dist/**', 'package.json'],
+  triggers: [folderHash.hash]
 })
 
-const functionArchive = new gcp.storage.BucketObject('transcribe-function', {
+const zip = new command.local.Command('zip-transcribe-fn', {
+  create: '',
+  dir: paths.functions.transcribe + '/dist',
+  archivePaths: ['function.js'],
+}, { dependsOn: [build] })
+
+const bucketObject = new gcp.storage.BucketObject('transcribe-fn-object', {
   bucket: functionsBucket.name,
-  name: 'transcribe.zip',
-  source: compile.archive
+  name: 'function.zip',
+  source: zip.archive,
 })
+
+new command.local.Command('cleanup-transcribe-fn', {
+  create: `rm -rf dist`,
+  dir: paths.functions.transcribe,
+}, { dependsOn: [bucketObject] })
 
 export const fn = new gcp.cloudfunctionsv2.Function('transcribe-fn', {
   location: region,
@@ -26,12 +43,12 @@ export const fn = new gcp.cloudfunctionsv2.Function('transcribe-fn', {
     source: {
       storageSource: {
         bucket: functionsBucket.name,
-        object: functionArchive.name,
+        object: bucketObject.name,
       },
     },
   },
   serviceConfig: {
-    availableMemory: '512M',
+    availableMemory: '256M',
   },
 }, { dependsOn: [gcpFunctionsService, gcpBuildService, gcpRunService] })
 

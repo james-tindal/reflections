@@ -10,7 +10,11 @@
     "@pulumi/synced-folder": "^0.12.4",
     "@types/node": "^25.3.5",
     "find-up-simple": "^1.0.0",
+    "folder-hash": "^4.1.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3"
+  },
+  "devDependencies": {
+    "@types/folder-hash": "^4.0.4"
   }
 }

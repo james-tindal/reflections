@@ -1,35 +1,42 @@
 import * as gcp from '@pulumi/gcp'
 import * as command from '@pulumi/command'
-
 import { functionsBucket } from '@infra/buckets/functions'
 import { region } from '@infra/config'
 import paths from '@infra/utilities/paths'
 import { gcpBuildService, gcpFunctionsService, gcpRunService } from './gcp-functions-service'
+import { audioBucket } from '@infra/buckets/audio'
+import { FolderHash } from '@infra/utilities/folder-hash'
 
 
-export const compile = new command.local.Command('compile-upload-audio-function', {
-  create: `tsc --noEmit false`,
+const folderHash = new FolderHash('upload-audio-fn-folder-hash', {
+  path: paths.functions.uploadAudio,
+  folders: { exclude: ['node_modules'] }
+})
+
+const build = new command.local.Command('build-upload-audio-fn', {
+  create: `pnpm install && pnpm rolldown -c`,
   dir: paths.functions.uploadAudio,
-  archivePaths: ['dist/**', 'package.json'],
+  triggers: [folderHash.hash]
 })
 
-const audioBucket = new gcp.storage.Bucket('audio-bucket', {
-  location: region,
-})
+const zip = new command.local.Command('zip-upload-audio-fn', {
+  create: '',
+  dir: paths.functions.uploadAudio + '/dist',
+  archivePaths: ['function.js'],
+}, { dependsOn: [build] })
 
-new gcp.storage.BucketAccessControl('audio-bucket-owner', {
-  bucket: audioBucket.name,
-  role: 'OWNER',
-  entity: 'allUsers'
-})
-
-const uploadAudioFunctionArchive = new gcp.storage.BucketObject('upload-audio-function-archive', {
+const bucketObject = new gcp.storage.BucketObject('upload-audio-fn-object', {
   bucket: functionsBucket.name,
-  name: 'upload-audio.zip',
-  source: compile.archive
+  name: 'function.zip',
+  source: zip.archive,
 })
 
-export const uploadAudioFn = new gcp.cloudfunctionsv2.Function('upload-audio-fn', {
+new command.local.Command('cleanup-upload-audio-fn', {
+  create: `rm -rf dist`,
+  dir: paths.functions.uploadAudio,
+}, { dependsOn: [bucketObject] })
+
+export const fn = new gcp.cloudfunctionsv2.Function('upload-audio-fn', {
   location: region,
   buildConfig: {
     runtime: 'nodejs24',
@@ -37,7 +44,7 @@ export const uploadAudioFn = new gcp.cloudfunctionsv2.Function('upload-audio-fn'
     source: {
       storageSource: {
         bucket: functionsBucket.name,
-        object: uploadAudioFunctionArchive.name,
+        object: bucketObject.name,
       },
     },
   },
@@ -51,11 +58,11 @@ export const uploadAudioFn = new gcp.cloudfunctionsv2.Function('upload-audio-fn'
 
 new gcp.cloudfunctionsv2.FunctionIamMember('upload-audio-fn-iam', {
   location: region,
-  cloudFunction: uploadAudioFn.name,
+  cloudFunction: fn.name,
   role: 'roles/cloudfunctions.invoker',
   member: 'allUsers'
 })
 
-export const uploadAudioUrl = uploadAudioFn.serviceConfig.apply(sc => sc?.uri)
+export const uploadAudioUrl = fn.serviceConfig.apply(sc => sc?.uri)
 export const audioBucketName = audioBucket.name
 export const audioBucketUrl = `https://storage.googleapis.com/${audioBucket.name}`
